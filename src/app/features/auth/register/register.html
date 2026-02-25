@@ -1,0 +1,217 @@
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-sm p-8">
+    <!-- Confirmation Message (Success State) -->
+    @if (showConfirmationMessage()) {
+      <div class="text-center space-y-6 py-4">
+        <!-- Success Icon -->
+        <div class="flex justify-center">
+          <svg class="w-16 h-16 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+        </div>
+
+        <!-- Success Message -->
+        <div>
+          <h1 class="text-2xl font-semibold text-slate-800 mb-2">Almost there!</h1>
+          <p class="text-slate-600 text-sm">
+            We've sent a confirmation link to <span class="font-semibold">{{ registeredEmail() }}</span>
+          </p>
+          <p class="text-slate-600 text-sm mt-3">
+            Please check your email and click the confirmation link to complete your registration. Once verified,
+            you can log in to your account.
+          </p>
+        </div>
+
+        <!-- Action Button -->
+        <button
+          (click)="goToLogin()"
+          class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+        >
+          Go to Login
+        </button>
+
+        <!-- Secondary Info -->
+        <p class="text-xs text-slate-500">
+          Redirecting to login in 10 seconds...
+        </p>
+      </div>
+    } @else {
+      <!-- Registration Form Content -->
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-semibold text-slate-800">Create Account</h1>
+        <p class="text-slate-600 mt-2">Join our flower boutique family</p>
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage()) {
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-red-800">{{ errorMessage() }}</p>
+          </div>
+          <button
+            (click)="dismissError()"
+            class="text-red-500 hover:text-red-700 transition"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      }
+
+      <!-- Register Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <!-- Full Name Field -->
+        <div>
+          <label for="fullName" class="block text-sm font-medium text-slate-800 mb-2">
+            Full Name
+          </label>
+          <input
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            placeholder="Enter your full name"
+            class="w-full px-4 py-2 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+            [class.border-red-500]="submitted() && fullName?.invalid"
+          />
+          @if (submitted() && fullName?.invalid) {
+            <div class="text-red-500 text-sm mt-1 space-y-1">
+              @if (fullName?.errors?.['required']) {
+                <p>Full name is required</p>
+              }
+              @if (fullName?.errors?.['minlength']) {
+                <p>Name must be at least 2 characters</p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Email Field -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-slate-800 mb-2">
+            Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            class="w-full px-4 py-2 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+            [class.border-red-500]="submitted() && email?.invalid"
+          />
+          @if (submitted() && email?.invalid) {
+            <div class="text-red-500 text-sm mt-1 space-y-1">
+              @if (email?.errors?.['required']) {
+                <p>Email is required</p>
+              }
+              @if (email?.errors?.['email']) {
+                <p>Please enter a valid email</p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-slate-800 mb-2">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Create a strong password"
+            class="w-full px-4 py-2 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+            [class.border-red-500]="submitted() && password?.invalid"
+          />
+          @if (submitted() && password?.invalid) {
+            <div class="text-red-500 text-sm mt-1 space-y-1">
+              @if (password?.errors?.['required']) {
+                <p>Password is required</p>
+              }
+              @if (password?.errors?.['minlength']) {
+                <p>Password must be at least 8 characters</p>
+              }
+            </div>
+          }
+          <p class="text-xs text-slate-500 mt-2">Password will be securely hashed and encrypted.</p>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+        >
+          @if (isLoading()) {
+            <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span>Creating Account...</span>
+          } @else {
+            <span>Create Account</span>
+          }
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-slate-600">Or sign up with</span>
+        </div>
+      </div>
+
+      <!-- Google Sign-Up Button -->
+      <button
+        type="button"
+        class="w-full border border-slate-300 bg-white hover:bg-slate-50 disabled:bg-slate-50 disabled:cursor-not-allowed text-slate-800 font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Sign up with Google
+      </button>
+
+      <!-- Login Link -->
+      <div class="mt-6 text-center">
+        <p class="text-slate-600 text-sm">
+          Already have an account?
+          <a
+            routerLink="/auth/login"
+            class="text-pink-500 hover:text-pink-600 font-semibold transition"
+          >
+            Log in
+          </a>
+        </p>
+      </div>
+    }
+  </div>
+</div>

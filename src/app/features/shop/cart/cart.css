@@ -1,0 +1,39 @@
+/* Modal Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal backdrop fade in */
+.fixed.inset-0.bg-black {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal content slide up */
+.fixed.inset-0.z-50 {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Smooth transitions for order cards */
+.cursor-pointer {
+  transition: all 0.2s ease-in-out;
+}
+
+.cursor-pointer:hover {
+  transform: translateY(-2px);
+}

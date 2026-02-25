@@ -1,0 +1,92 @@
+/* Inventory Component Styles */
+
+/* Modal animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+div[class*='fixed inset-0 bg-black'] {
+  animation: fadeIn 0.3s ease;
+}
+
+div[class*='bg-white rounded-lg shadow-xl'] {
+  animation: slideUp 0.3s ease;
+}
+
+/* Table hover effects */
+table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+table tbody tr:hover {
+  background-color: rgb(248, 250, 252);
+}
+
+/* Button transitions */
+button {
+  transition: all 0.2s ease;
+}
+
+/* Form input focus */
+input[type='text'],
+input[type='number'],
+input[type='url'],
+textarea,
+select {
+  transition: all 0.2s ease;
+}
+
+/* Image preview */
+img {
+  transition: transform 0.2s ease;
+}
+
+div[class*='w-16 h-16'] img:hover {
+  transform: scale(1.05);
+}
+
+/* Action buttons hover */
+button[title='Edit product']:hover {
+  background-color: rgb(255, 240, 245);
+}
+
+button[title='Delete product']:hover {
+  background-color: rgb(254, 240, 240);
+}
+
+/* Badge styling */
+span[class*='inline-flex items-center px-3'] {
+  transition: all 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  div[class*='max-w-2xl'] {
+    max-height: 90vh;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  div[class*='w-16 h-16'] {
+    width: 3rem;
+    height: 3rem;
+  }
+}

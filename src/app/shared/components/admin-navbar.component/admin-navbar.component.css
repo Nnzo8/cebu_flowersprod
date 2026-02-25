@@ -1,0 +1,27 @@
+/* Admin Navbar Styles */
+nav {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions for menu */
+button svg {
+  transition: transform 0.3s ease;
+}
+
+/* Mobile menu animations */
+@media (max-width: 768px) {
+  nav > div:last-child {
+    animation: slideDown 0.3s ease;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

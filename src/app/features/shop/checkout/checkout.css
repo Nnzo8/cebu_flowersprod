@@ -1,0 +1,65 @@
+/* Print Styles for Receipt */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the receipt container */
+  .receipt-container,
+  .receipt-container * {
+    visibility: visible;
+  }
+
+  /* Position receipt container to fill the page */
+  .receipt-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: none;
+    padding: 20mm;
+    box-shadow: none;
+  }
+
+  /* Print-friendly spacing */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Remove backgrounds and shadows for print */
+  .receipt-container {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Ensure text is black for printing */
+  .receipt-container {
+    color: #000;
+  }
+
+  /* Optimize font sizes for print */
+  .receipt-container h3 {
+    font-size: 18pt;
+  }
+
+  .receipt-container p {
+    font-size: 10pt;
+    line-height: 1.5;
+  }
+
+  /* Remove page breaks before/after */
+  .receipt-container {
+    page-break-inside: avoid;
+  }
+
+  /* Set page size */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}

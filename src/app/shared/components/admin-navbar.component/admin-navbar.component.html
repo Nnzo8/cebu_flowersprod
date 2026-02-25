@@ -1,0 +1,97 @@
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+  <div class="max-w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Left: Company Name -->
+      <div class="shrink-0">
+        <h1 class="text-2xl font-bold text-rose-500">Cebu Flowers</h1>
+      </div>
+
+      <!-- Center: Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8 flex-1 justify-center">
+        @for (link of navLinks; track link.path) {
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="text-rose-500 border-b-2 border-rose-500"
+            [routerLinkActiveOptions]="{ exact: link.path === '/admin/dashboard' }"
+            class="text-slate-700 hover:text-rose-500 transition-colors duration-200 pb-4 font-medium flex items-center gap-2 whitespace-nowrap"
+          >
+            <span class="text-lg">{{ link.icon }}</span>
+            {{ link.label }}
+          </a>
+        }
+      </div>
+
+      <!-- Right: User & Actions -->
+      <div class="hidden md:flex items-center gap-6">
+        <!-- Current User -->
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold">
+            {{ userName().charAt(0) }}
+          </div>
+          <span class="text-sm font-medium text-slate-700">{{ userName() }}</span>
+        </div>
+
+        <!-- Logout Button -->
+        <button
+          (click)="logout()"
+          class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium border border-red-200"
+        >
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button
+        (click)="toggleMenu()"
+        class="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          @if (isMenuOpen()) {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          } @else {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          }
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation -->
+    @if (isMenuOpen()) {
+      <div class="md:hidden py-4 border-t border-slate-200 space-y-2">
+        <!-- Mobile User Info -->
+        <div class="px-4 py-3 border-b border-slate-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold">
+              {{ userName().charAt(0) }}
+            </div>
+            <span class="font-medium text-slate-700">{{ userName() }}</span>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Links -->
+        @for (link of navLinks; track link.path) {
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="bg-rose-50 text-rose-500 border-l-4 border-rose-500"
+            [routerLinkActiveOptions]="{ exact: link.path === '/admin/dashboard' }"
+            (click)="onNavLinkClick()"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors font-medium"
+          >
+            <span class="text-lg">{{ link.icon }}</span>
+            {{ link.label }}
+          </a>
+        }
+
+        <!-- Mobile Logout Button -->
+        <button
+          (click)="logout()"
+          class="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium mt-4 border border-red-200"
+        >
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    }
+  </div>
+</nav>

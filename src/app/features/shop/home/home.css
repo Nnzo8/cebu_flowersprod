@@ -1,0 +1,49 @@
+/* Hero Section Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Apply animations */
+header h1 {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+header p {
+  animation: fadeInUp 0.8s ease-out 0.1s both;
+}
+
+header a {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Product card hover enhancement */
+article img {
+  will-change: transform;
+}
+
+/* Section transitions */
+section {
+  opacity: 1;
+  animation: fadeInUp 0.6s ease-out;
+}

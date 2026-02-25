@@ -1,0 +1,76 @@
+/* Desktop Dashboard */
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Table Row Hover Effect */
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: rgb(248, 250, 252);
+}
+
+/* Stat Card Hover Effect */
+.hover\:shadow-md {
+  transition: box-shadow 0.3s ease;
+}
+
+/* Smooth Badge Color Transitions */
+span.inline-flex {
+  transition: all 0.2s ease;
+}
+
+/* Status Badge Colors */
+.bg-yellow-100 {
+  background-color: rgb(254, 243, 192);
+}
+
+.text-yellow-800 {
+  color: rgb(113, 63, 18);
+}
+
+.bg-blue-100 {
+  background-color: rgb(219, 234, 254);
+}
+
+.text-blue-800 {
+  color: rgb(30, 58, 138);
+}
+
+.bg-green-100 {
+  background-color: rgb(220, 252, 231);
+}
+
+.text-green-800 {
+  color: rgb(22, 101, 52);
+}
+
+.bg-red-100 {
+  background-color: rgb(254, 226, 226);
+}
+
+.text-red-800 {
+  color: rgb(153, 27, 27);
+}
+
+/* Scroll behavior */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(248, 250, 252);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(203, 213, 225);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 163, 184);
+}

@@ -1,0 +1,153 @@
+<div class="flex flex-col min-h-screen bg-slate-50">
+  <!-- Admin Navbar -->
+  <app-admin-navbar></app-admin-navbar>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 p-6">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header Section -->
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-slate-800">Order Management</h1>
+        <button
+          (click)="exportToCSV()"
+          class="flex items-center gap-2 px-4 py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-50 transition-colors duration-200"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            ></path>
+          </svg>
+          Export to CSV
+        </button>
+      </div>
+
+      <!-- Status Tabs (Filters) -->
+      <div class="flex gap-2 mb-8 border-b border-slate-200">
+        <button
+          *ngFor="let filter of ['all', 'Pending', 'Making', 'Ready', 'Delivered']"
+          (click)="setFilter(filter)"
+          [class.active]="selectedFilter() === filter"
+          class="px-4 py-3 font-medium text-sm transition-colors duration-200 border-b-2 border-transparent"
+          [ngClass]="{
+            'text-pink-500 border-pink-500': selectedFilter() === filter,
+            'text-slate-600 hover:text-slate-800': selectedFilter() !== filter
+          }"
+        >
+          {{ filter === 'all' ? 'All' : filter }}
+        </button>
+      </div>
+
+      <!-- Data Table -->
+      <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <!-- Table Header -->
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-slate-800">
+                  Order ID
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-slate-800">
+                  Customer Name
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-slate-800">
+                  Date
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-slate-800">
+                  Total Price
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-slate-800">
+                  Status
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-slate-800">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <!-- Table Body -->
+            <tbody class="divide-y divide-slate-200">
+              @if (filteredOrders().length > 0) {
+                @for (order of filteredOrders(); track order.id) {
+                  <tr class="hover:bg-slate-50 transition-colors duration-150">
+                    <!-- Order ID -->
+                    <td class="px-6 py-4 text-sm font-medium text-slate-800">
+                      {{ order.id }}
+                    </td>
+
+                    <!-- Customer Name -->
+                    <td class="px-6 py-4 text-sm text-slate-700">
+                      {{ order.customer_name }}
+                    </td>
+
+                    <!-- Date -->
+                    <td class="px-6 py-4 text-sm text-slate-600">
+                      {{ formatDate(order.order_date) }}
+                    </td>
+
+                    <!-- Total Price -->
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-800">
+                      {{ formatCurrency(order.total_price) }}
+                    </td>
+
+                    <!-- Status Badge -->
+                    <td class="px-6 py-4 text-sm">
+                      <span [ngClass]="getStatusBadgeClass(order.status)">
+                        {{ order.status }}
+                      </span>
+                    </td>
+
+                    <!-- Actions: Status Dropdown -->
+                    <td class="px-6 py-4 text-sm">
+                      <select
+                        [value]="order.status"
+                        (change)="onStatusChange(order.id, $event)"
+                        class="px-3 py-2 border border-slate-300 rounded-md text-slate-700 bg-white hover:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-colors duration-200"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Making">Making</option>
+                        <option value="Ready">Ready to Deliver</option>
+                        <option value="Delivered">Delivered</option>
+                      </select>
+                    </td>
+                  </tr>
+                }
+              } @else {
+                <tr>
+                  <td colspan="6" class="px-6 py-12 text-center text-slate-600">
+                    @if (isLoading()) {
+                      <p>Loading orders...</p>
+                    } @else if (error()) {
+                      <p class="text-red-600">{{ error() }}</p>
+                    } @else {
+                      <p>No orders found for the selected filter.</p>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Summary Footer -->
+        <div class="bg-slate-50 border-t border-slate-200 px-6 py-4">
+          <p class="text-sm text-slate-600">
+            Showing <span class="font-semibold text-slate-800">{{ filteredOrders().length }}</span>
+            order(s) out of
+            <span class="font-semibold text-slate-800">{{ orders().length }}</span>
+            total
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
