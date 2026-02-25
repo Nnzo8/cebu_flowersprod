@@ -177,4 +177,53 @@ export class AuthService {
       console.error('Logout error:', error);
     }
   }
+
+  /**
+   * Send a password reset link via Supabase Auth to user's email.
+   * The email contains a reset link that redirects to /auth/update-password with a token.
+   * @param email User's email address
+   */
+  async sendPasswordResetLink(email: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      console.log('[AuthService] Sending password reset link to:', email);
+
+      const { error } = await this.supabaseService.sendPasswordResetEmail(email);
+
+      if (error) {
+        console.error('[AuthService] Password reset error:', error);
+        return { success: false, error: error.message };
+      }
+
+      console.log('[AuthService] Password reset link sent successfully to:', email);
+      return { success: true };
+    } catch (error: any) {
+      console.error('[AuthService] Password reset exception:', error);
+      return { success: false, error: error.message || 'Failed to send reset link' };
+    }
+  }
+
+  /**
+   * Update the user's password using the recovery token.
+   * This is called after the user clicks the password reset link in their email.
+   * Supabase automatically sets the session in "recovery" mode, allowing password update without old password.
+   * @param newPassword The new password to set
+   */
+  async updatePassword(newPassword: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      console.log('[AuthService] Updating password...');
+
+      const { error } = await this.supabaseService.updateUserPassword(newPassword);
+
+      if (error) {
+        console.error('[AuthService] Password update error:', error);
+        return { success: false, error: error.message };
+      }
+
+      console.log('[AuthService] Password updated successfully');
+      return { success: true };
+    } catch (error: any) {
+      console.error('[AuthService] Password update exception:', error);
+      return { success: false, error: error.message || 'Failed to update password' };
+    }
+  }
 }

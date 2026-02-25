@@ -27,15 +27,33 @@ export class RegisterComponent implements OnInit {
     this.initializeForm();
   }
 
+  // Terms and Conditions modal state
+  isTermsModalOpen = signal(false);
+
   /**
-   * Initialize the register form with fullName, email, and password controls.
+   * Initialize the register form with fullName, email, password, and agreedToTerms controls.
    */
   private initializeForm(): void {
     this.registerForm = this.formBuilder.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      agreedToTerms: [false, Validators.requiredTrue]
     });
+  }
+
+  /**
+   * Open the Terms and Conditions modal.
+   */
+  openTerms(): void {
+    this.isTermsModalOpen.set(true);
+  }
+
+  /**
+   * Close the Terms and Conditions modal.
+   */
+  closeTerms(): void {
+    this.isTermsModalOpen.set(false);
   }
 
   /**
@@ -141,5 +159,12 @@ export class RegisterComponent implements OnInit {
    */
   get password() {
     return this.registerForm.get('password');
+  }
+
+  /**
+   * Convenience getter for agreedToTerms control validation.
+   */
+  get agreedToTerms() {
+    return this.registerForm.get('agreedToTerms');
   }
 }

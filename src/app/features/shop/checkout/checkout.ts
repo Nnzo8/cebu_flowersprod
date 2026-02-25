@@ -38,6 +38,31 @@ export interface Order {
 
 type CheckoutState = 'form' | 'success';
 
+// City and delivery fee mapping
+const CITY_DELIVERY_FEES: { [key: string]: number } = {
+  'bogo': 250,
+  'carcar': 230,
+  'cebu-city': 100,
+  'danao': 150,
+  'lapu-lapu': 130,
+  'mandaue': 130,
+  'naga': 150,
+  'talisay': 140,
+  'toledo': 200
+};
+
+const CITIES = [
+  { label: 'Bogo', value: 'bogo' },
+  { label: 'Carcar', value: 'carcar' },
+  { label: 'Cebu City', value: 'cebu-city' },
+  { label: 'Danao', value: 'danao' },
+  { label: 'Lapu-Lapu', value: 'lapu-lapu' },
+  { label: 'Mandaue', value: 'mandaue' },
+  { label: 'Naga', value: 'naga' },
+  { label: 'Talisay', value: 'talisay' },
+  { label: 'Toledo', value: 'toledo' }
+];
+
 @Component({
   selector: 'app-checkout',
   standalone: true,
@@ -56,7 +81,6 @@ export class Checkout implements OnInit {
   // ====== STATE ======
   readonly checkoutState = signal<CheckoutState>('form');
   readonly isProcessing = signal(false);
-  readonly showDownpaymentModal = signal(false);
 
   // Form
   checkoutForm: FormGroup;
@@ -64,7 +88,9 @@ export class Checkout implements OnInit {
   // Order data (from navigation state or mock)
   readonly cartItems = signal<CartItem[]>([]);
   readonly subtotal = signal(0);
-  readonly deliveryFee = signal(150); // Fixed delivery fee
+  readonly selectedCity = signal<string>('cebu-city');
+  readonly deliveryFee = computed(() => CITY_DELIVERY_FEES[this.selectedCity()] || 80);
+  readonly cities = CITIES;
 
   // Computed: Total price
   readonly total = computed(() => this.subtotal() + this.deliveryFee());
@@ -88,6 +114,7 @@ export class Checkout implements OnInit {
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10,}$/)]],
+      city: ['cebu-city', Validators.required],
       address: ['', [Validators.required, Validators.minLength(10)]],
       landmark: ['', [Validators.minLength(3)]],
       paymentMethod: ['cash', Validators.required],
@@ -208,20 +235,10 @@ export class Checkout implements OnInit {
   }
 
   /**
-   * Handle payment method change
+   * Handle city change and update delivery fee
    */
-  onPaymentMethodChange(): void {
-    const paymentMethod = this.checkoutForm.get('paymentMethod')?.value;
-    if (paymentMethod === 'cash') {
-      this.showDownpaymentModal.set(true);
-    }
-  }
-
-  /**
-   * Close the downpayment modal
-   */
-  closeDownpaymentModal(): void {
-    this.showDownpaymentModal.set(false);
+  onCityChange(city: string): void {
+    this.selectedCity.set(city);
   }
 
   /**

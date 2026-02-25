@@ -75,6 +75,25 @@
                     }
                   </div>
 
+                  <!-- City Selection -->
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                      Delivery City
+                    </label>
+                    <select
+                      formControlName="city"
+                      (change)="onCityChange($any($event.target).value)"
+                      class="w-full px-4 py-3 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200 bg-white"
+                    >
+                      @for (city of cities; track city.value) {
+                        <option [value]="city.value">{{ city.label }}</option>
+                      }
+                    </select>
+                    @if (getControl('city')?.invalid && getControl('city')?.touched) {
+                      <p class="text-red-500 text-xs mt-2">Please select a city</p>
+                    }
+                  </div>
+
                   <!-- Address -->
                   <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
@@ -117,19 +136,54 @@
 
                 <div class="space-y-4">
                   <!-- Cash on Delivery -->
-                  <label class="flex items-center p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors duration-200">
-                    <input
-                      type="radio"
-                      formControlName="paymentMethod"
-                      value="cash"
-                      (change)="onPaymentMethodChange()"
-                      class="w-4 h-4 text-rose-500 focus:ring-2 focus:ring-rose-500"
-                    />
-                    <span class="ml-3">
-                      <p class="font-semibold text-slate-800">Cash on Delivery</p>
-                      <p class="text-sm text-slate-500 mt-1">Pay when your order arrives</p>
-                    </span>
-                  </label>
+                  <div class="border border-slate-200 rounded-lg overflow-hidden">
+                    <label class="flex items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors duration-200">
+                      <input
+                        type="radio"
+                        formControlName="paymentMethod"
+                        value="cash"
+                        class="w-4 h-4 text-rose-500 focus:ring-2 focus:ring-rose-500"
+                      />
+                      <span class="ml-3">
+                        <p class="font-semibold text-slate-800">Cash on Delivery</p>
+                        <p class="text-sm text-slate-500 mt-1">Pay when your order arrives</p>
+                      </span>
+                    </label>
+
+                    <!-- QR Code and Downpayment Info - Shown when Cash on Delivery is selected -->
+                    @if (checkoutForm.get('paymentMethod')?.value === 'cash') {
+                      <div class="border-t border-slate-200 bg-slate-50 p-6 space-y-6">
+                        <!-- QR Code Section -->
+                        <div class="flex flex-col items-center">
+                          <p class="text-sm font-semibold text-slate-700 mb-4">Scan to Pay 50% Downpayment</p>
+                          <div class="bg-white rounded-lg p-4 border-2 border-slate-200 w-48 h-48 flex items-center justify-center overflow-hidden">
+        
+                                <img 
+                                  src="assets/qr-code.png" 
+                                  alt="Payment QR Code" 
+                                  class="w-full h-full object-contain"
+                                >
+                          </div>
+                        </div>
+
+                        <!-- Downpayment Message -->
+                        <div class="space-y-3">
+                          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                            <p class="font-semibold text-amber-900 text-center">50% Downpayment Required</p>
+                            <p class="text-sm text-amber-800 mt-2">
+                              Amount to pay now: <span class="font-bold">₱{{ (total() * 0.5).toLocaleString('en-PH') }}</span>
+                            </p>
+                            <p class="text-xs text-amber-700 mt-3">
+                              Please scan the QR code or send 50% of your order total to confirm your order. After paying, send a screenshot of your receipt to our Facebook page.
+                            </p>
+                            <p class="text-xs text-amber-700 mt-2">
+                              The remaining 50% (₱{{ (total() * 0.5).toLocaleString('en-PH') }}) will be paid upon delivery.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
 
                   <!-- Credit Card -->
                   <label class="flex items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200 opacity-50 pointer-events-none">
@@ -193,7 +247,7 @@
 
             <!-- Delivery Fee -->
             <div class="flex justify-between mb-6 pb-6 border-b border-slate-200">
-              <p class="text-slate-600">Delivery Fee</p>
+              <p class="text-slate-600">Delivery Fee <span class="text-xs text-slate-500">({{ checkoutForm.get('city')?.value }})</span></p>
               <p class="font-semibold text-slate-800">₱{{ deliveryFee().toLocaleString('en-PH') }}</p>
             </div>
 
@@ -321,57 +375,6 @@
           >
             🛍️ Return to Shop
           </button>
-        </div>
-      </div>
-    }
-
-    <!-- MODAL: DOWNPAYMENT REQUIREMENT FOR CASH ON DELIVERY -->
-    @if (showDownpaymentModal()) {
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full animate-in fade-in zoom-in duration-300">
-          <!-- Modal Header -->
-          <div class="bg-linear-to-r from-rose-500 to-rose-600 px-6 py-4 rounded-t-lg">
-            <h3 class="text-xl font-bold text-white">💳 Payment Requirement</h3>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="p-6 text-center space-y-6">
-            <!-- QR Code Image -->
-            <div class="flex justify-center">
-              <div class="bg-slate-100 rounded-lg p-6 w-48 h-48 flex items-center justify-center">
-                <!-- QR Code Placeholder - Replace with your actual QR code image -->
-                <div class="text-center">
-                  <div class="text-5xl mb-2">📱</div>
-                  <p class="text-sm text-slate-600">QR Code</p>
-                  <p class="text-xs text-slate-500 mt-1">(Placeholder - Add your QR code here)</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Downpayment Message -->
-            <div class="space-y-3">
-              <p class="text-sm text-slate-700">
-                For <span class="font-bold text-rose-600">Cash on Delivery</span> orders, please note:
-              </p>
-              <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                <p class="text-lg font-bold text-amber-900">50% Downpayment Required</p>
-                <p class="text-sm text-amber-800 mt-2">
-                  Please scan the QR code or send 50% of your order total to confirm your order. After paying, send a screenshot of your receipt from the payment and send it to our facebook page.
-                </p>
-              </div>
-              <p class="text-xs text-slate-500">
-                The remaining 50% will be paid upon delivery.
-              </p>
-            </div>
-
-            <!-- Close Button -->
-            <button
-              (click)="closeDownpaymentModal()"
-              class="w-full px-4 py-2 bg-rose-500 text-white font-semibold rounded-lg hover:bg-rose-600 transition-all duration-200"
-            >
-              I Understand
-            </button>
-          </div>
         </div>
       </div>
     }

@@ -155,9 +155,36 @@
           <p class="text-xs text-slate-500 mt-2">Password will be securely hashed and encrypted.</p>
         </div>
 
+        <!-- Terms and Conditions Checkbox -->
+        <div class="flex items-start gap-3 pt-2">
+          <div class="flex items-center h-6">
+            <input
+              id="agreedToTerms"
+              type="checkbox"
+              formControlName="agreedToTerms"
+              class="w-5 h-5 rounded border-2 border-slate-300 accent-pink-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition"
+            />
+          </div>
+          <label for="agreedToTerms" class="text-sm text-slate-700 leading-relaxed cursor-pointer">
+            I agree to the
+            <button
+              type="button"
+              (click)="openTerms()"
+              class="text-pink-500 hover:text-pink-600 font-semibold underline transition ml-1"
+            >
+              Terms and Conditions
+            </button>
+          </label>
+        </div>
+
+        @if (submitted() && agreedToTerms?.invalid) {
+          <p class="text-red-500 text-sm mt-2 ml-8">You must agree to the Terms and Conditions</p>
+        }
+
         <!-- Submit Button -->
         <button
           type="submit"
+          [disabled]="isLoading() || registerForm.invalid"
           class="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
         >
           @if (isLoading()) {
@@ -214,4 +241,81 @@
       </div>
     }
   </div>
+
+  <!-- Terms and Conditions Modal -->
+  @if (isTermsModalOpen()) {
+    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col animate-scale-in">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-8 py-6 border-b border-slate-200 shrink-0">
+          <h2 class="text-2xl font-semibold text-slate-800">Terms and Conditions</h2>
+          <button
+            (click)="closeTerms()"
+            type="button"
+            class="text-slate-400 hover:text-slate-600 transition-colors p-1"
+            aria-label="Close modal"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body - Scrollable Content -->
+        <div class="overflow-y-auto flex-1 px-8 py-6 text-slate-700 space-y-4">
+          <h3 class="text-lg font-semibold text-slate-800">1. Acceptance of Terms</h3>
+          <p class="text-sm leading-relaxed">
+            By accessing and using this website and our services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+          </p>
+
+          <h3 class="text-lg font-semibold text-slate-800">2. User Responsibilities</h3>
+          <p class="text-sm leading-relaxed">
+            As a user of our flower boutique, you agree to:
+          </p>
+          <ul class="text-sm leading-relaxed list-disc list-inside space-y-1 ml-2">
+            <li>Provide accurate and complete information during registration</li>
+            <li>Maintain the confidentiality of your account credentials</li>
+            <li>Not engage in any unlawful or fraudulent activities</li>
+            <li>Respect the intellectual property rights of all content</li>
+          </ul>
+
+          <h3 class="text-lg font-semibold text-slate-800">3. Product Information</h3>
+          <p class="text-sm leading-relaxed">
+            We strive to provide accurate descriptions and images of our floral arrangements. However, actual colors and sizes may vary slightly due to natural variations in fresh flowers. We reserve the right to substitute similar flowers of equal or greater value if specific varieties are unavailable.
+          </p>
+
+          <h3 class="text-lg font-semibold text-slate-800">4. Payment and Ordering</h3>
+          <p class="text-sm leading-relaxed">
+            All orders must be paid at least 50% or in full balance before fulfillment. We accept various payment methods as displayed on our checkout page. Your payment information is processed securely and encrypted.
+          </p>
+
+          <h3 class="text-lg font-semibold text-slate-800">5. Limitation of Liability</h3>
+          <p class="text-sm leading-relaxed">
+            Our website is provided on an "as is" basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+          </p>
+
+          <h3 class="text-lg font-semibold text-slate-800">6. Modifications to Terms</h3>
+          <p class="text-sm leading-relaxed">
+            We reserve the right to modify these Terms and Conditions at any time. Changes will be effective immediately upon posting to the website. Your continued use of the website following the posting of revised Terms means that you accept and agree to the changes.
+          </p>
+
+          <h3 class="text-lg font-semibold text-slate-800">7. Contact Us</h3>
+          <p class="text-sm leading-relaxed">
+            If you have any questions about these Terms and Conditions, please contact us through our contact page.
+          </p>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-8 py-4 border-t border-slate-200 shrink-0 bg-slate-50 rounded-b-2xl">
+          <button
+            (click)="closeTerms()"
+            type="button"
+            class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
+          >
+            I Understand & Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -133,7 +133,7 @@
                 </div>
                 <div class="flex items-center justify-between pt-2 mt-auto">
                   <span class="text-xl font-semibold text-slate-900">
-                    {{ product.price | currency }}
+                    {{ product.price | currency:'PHP' }}
                   </span>
                   <button
                     (click)="addToCart(product)"

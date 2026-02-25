@@ -232,6 +232,57 @@ export class SupabaseService {
   }
 
   /**
+   * Send password reset email via Supabase Auth.
+   * The user will receive an email with a reset link that redirects to /auth/update-password.
+   * @param email User's email address
+   */
+  async sendPasswordResetEmail(email: string): Promise<{ error: any }> {
+    try {
+      console.log('[SupabaseService] Sending password reset email to:', email);
+      const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      });
+
+      if (error) {
+        console.error('[SupabaseService] Password reset email error:', error);
+        return { error };
+      }
+
+      console.log('[SupabaseService] Password reset email sent to:', email);
+      return { error: null };
+    } catch (error: any) {
+      console.error('[SupabaseService] Password reset email exception:', error);
+      return { error };
+    }
+  }
+
+  /**
+   * Update the user's password using the recovery token from the reset email.
+   * This is called in recovery mode (after clicking the reset link).
+   * Supabase automatically handles the recovery session.
+   * @param newPassword The new password to set
+   */
+  async updateUserPassword(newPassword: string): Promise<{ error: any }> {
+    try {
+      console.log('[SupabaseService] Updating user password...');
+      const { error } = await this.supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        console.error('[SupabaseService] Password update error:', error);
+        return { error };
+      }
+
+      console.log('[SupabaseService] Password updated successfully');
+      return { error: null };
+    } catch (error: any) {
+      console.error('[SupabaseService] Password update exception:', error);
+      return { error };
+    }
+  }
+
+  /**
    * Get current authenticated user
    */
   async getCurrentUser(): Promise<User | null> {
