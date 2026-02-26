@@ -44,6 +44,8 @@ export class AuthService {
         // User is logged in
         const user = await this.supabaseService.getCurrentUser();
         if (user) {
+          // It saves the email and checks Supabase's user_metadata for a custom 
+          // role, falling back to a default of 'user' if none is found.
           this.currentUser.set({
             email: user.email,
             role: user.user_metadata?.role || 'user',
@@ -66,7 +68,7 @@ export class AuthService {
   async login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
     try {
       console.log('[AuthService] Starting login. Calling supabaseService.signIn...');
-      const { user, error } = await this.supabaseService.signIn(email, password);
+      const { user, error } = await this.supabaseService.signIn(email, password);// Call Supabase's signIn method with the provided credentials
       console.log('[AuthService] signIn returned. user:', user, 'error:', error);
 
       if (error) {
@@ -76,9 +78,10 @@ export class AuthService {
 
       if (user) {
         console.log('[AuthService] User authenticated:', user.email);
-        const role = await this.supabaseService.getUserRole();
+        const role = await this.supabaseService.getUserRole();// Fetch the user's role from the database (e.g. 'admin', 'user', etc.)
         console.log('[AuthService] Retrieved user role:', role);
         
+        // Update the `currentUser` signal with the user's email and role.
         this.currentUser.set({
           email: user.email,
           role: role || 'user',

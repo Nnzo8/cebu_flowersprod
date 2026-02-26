@@ -19,6 +19,7 @@ export interface CartItem {
   providedIn: 'root',
 })
 export class CartService {
+  //requesting dependencies(DI)
   private authService = inject(AuthService);
   private supabaseService = inject(SupabaseService);
 
@@ -28,7 +29,7 @@ export class CartService {
   // Computed: Check if cart is empty
   readonly isCartEmpty = computed(() => this.cartItems().length === 0);
 
-  // Computed: Calculate cart subtotal
+  // Computed: Calculate cart subtotal(Whenever this.cartItems changes, subtotal will be recalculated automatically)
   readonly subtotal = computed(() => {
     return this.cartItems().reduce((sum, item) => sum + item.price * item.quantity, 0);
   });
@@ -58,11 +59,11 @@ export class CartService {
    * Setup listener for auth changes to reload cart when user logs in/out
    */
   private setupAuthListener(): void {
-    // When user logs in or out, reload their cart
+    // When currentUser logs in or out, reload their cart
     effect(() => {
       const user = this.authService.currentUser();
       if (user?.email) {
-        this.syncWithSupabase();
+        this.syncWithSupabase();//sync cart with Supabase so we can get the saved carts from db
       } else {
         // User logged out, try to load from localStorage
         this.loadCartFromLocalStorage();
@@ -74,20 +75,19 @@ export class CartService {
    * Sync cart with Supabase for authenticated users
    */
   private async syncWithSupabase(): Promise<void> {
-    if (this.isSyncing) return;
+    if (this.isSyncing) return;//prevents multiple sync operations from running at the same time
 
     const currentUser = this.authService.currentUser();
     
     if (!currentUser?.email) {
       // User is not logged in, use localStorage only
-      console.log('[CartService] No user logged in, using localStorage');
       return;
     }
 
-    this.isSyncing = true;
+    this.isSyncing = true;//lock the sync so no other sync can start until this one finishes
 
     try {
-      // Load cart from Supabase for the current logged-in user
+      // Load cart from Supabase db for the current logged-in user
       const { data, error } = await this.supabaseService.getCartItems(currentUser.email);
 
       if (error) {
@@ -108,13 +108,12 @@ export class CartService {
           userId: item.user_email,
         }));
 
-        this.cartItems.set(cartItems);
-        console.log('[CartService] Cart synced from Supabase:', cartItems.length, 'items');
+        this.cartItems.set(cartItems);//update the cart signal with the freshly fetched items
 
         // Also save to localStorage as fallback
         this.saveCartToLocalStorage();
       } else {
-        // No items in Supabase, check localStorage
+        // No items in Supabase, check localStorage in case they added items before logging in
         this.loadCartFromLocalStorage();
       }
     } catch (error) {
@@ -129,9 +128,9 @@ export class CartService {
    */
   addItem(product: { id?: string; productId: string; name: string; price: number; imageUrl: string }): void {
     const currentUser = this.authService.currentUser();
-    const userEmail = currentUser?.email || 'guest';
+    const userEmail = currentUser?.email || 'guest';// Get the currently logged in user, or fall back to 'guest'
     
-    const existingItem = this.cartItems().find((item) => item.productId === product.productId);
+    const existingItem = this.cartItems().find((item) => item.productId === product.productId);// Check if this product is already in the cart by matching productId
 
     if (existingItem) {
       // Increase quantity if item already exists
@@ -139,7 +138,7 @@ export class CartService {
     } else {
       // Add new item to cart
       const newItem: CartItem = {
-        id: `cart-${Date.now()}`,
+        id: `cart-${Date.now()}`,// generates a unique id using current timestamp
         productId: product.productId,
         name: product.name,
         price: product.price,
@@ -148,14 +147,13 @@ export class CartService {
         userId: userEmail,
       };
       
-      this.cartItems.update((items) => [...items, newItem]);
+      this.cartItems.update((items) => [...items, newItem]);// spread the existing items into a new array with the new item appended
       this.saveCartToLocalStorage();
 
       // Sync to Supabase if user is logged in
       if (currentUser?.email) {
         this.syncItemToSupabase(currentUser.email, product.productId, product.name, product.price, product.imageUrl, 1);
       }
-
       console.log('[CartService] Added to cart:', product.name);
     }
   }
@@ -165,19 +163,19 @@ export class CartService {
    */
   updateQuantity(itemId: string, newQuantity: number): void {
     if (newQuantity <= 0) {
-      this.removeItem(itemId);
+      this.removeItem(itemId);// If quantity drops to 0 or below, remove the item entirely
       return;
     }
 
-    const item = this.cartItems().find((i) => i.id === itemId);
+    const item = this.cartItems().find((i) => i.id === itemId);// Find the item we want to update
     if (!item) return;
 
     this.cartItems.update((items) =>
-      items.map((i) => (i.id === itemId ? { ...i, quantity: newQuantity } : i))
+      items.map((i) => (i.id === itemId ? { ...i, quantity: newQuantity } : i))//loops and updates the quantity of the matching item, while leaving other items unchanged
     );
     this.saveCartToLocalStorage();
 
-    // Sync to Supabase if user is logged in
+    // If the user is logged in, also update the item from Supabase
     const currentUser = this.authService.currentUser();
     if (currentUser?.email) {
       this.supabaseService.updateCartItemQuantity(currentUser.email, item.productId, newQuantity).catch((error) => {
@@ -190,13 +188,13 @@ export class CartService {
    * Remove item from cart (sync to Supabase if logged in)
    */
   removeItem(itemId: string): void {
-    const item = this.cartItems().find((i) => i.id === itemId);
+    const item = this.cartItems().find((i) => i.id === itemId);// Find the item we want to remove
     if (!item) return;
 
     this.cartItems.update((items) => items.filter((i) => i.id !== itemId));
     this.saveCartToLocalStorage();
 
-    // Sync to Supabase if user is logged in
+    // If the user is logged in, also delete the item from Supabase
     const currentUser = this.authService.currentUser();
     if (currentUser?.email) {
       this.supabaseService.removeCartItem(currentUser.email, item.productId).catch((error) => {
@@ -208,14 +206,12 @@ export class CartService {
   /**
    * Clear entire cart (sync to Supabase if logged in)
    */
-  /**
-   * Clear entire cart (sync to Supabase if logged in)
-   */
   clearCart(): void {
-    this.cartItems.set([]);
-    this.saveCartToLocalStorage();
+    this.cartItems.set([]);//wipe out the cart items signal to an empty array
+    this.saveCartToLocalStorage();// Persist the empty cart to localStorage immediately so the cart stays empty even after a page refresh
+  
 
-    // Sync to Supabase if user is logged in
+    // If the user is logged in, also clear their cart in Supabase
     const currentUser = this.authService.currentUser();
     if (currentUser?.email) {
       this.supabaseService.clearUserCart(currentUser.email).catch((error) => {
@@ -236,8 +232,8 @@ export class CartService {
     quantity: number
   ): Promise<void> {
     try {
+      // Pass all the item details to Supabase to persist in the database
       await this.supabaseService.addItemToCart(userEmail, productId, productName, price, imageUrl, quantity);
-      console.log('[CartService] Item synced to Supabase');
     } catch (error) {
       console.error('[CartService] Error syncing item to Supabase:', error);
     }
@@ -255,10 +251,10 @@ export class CartService {
    * Save cart to localStorage
    */
   private saveCartToLocalStorage(): void {
-    const currentUser = this.authService.currentUser()?.email || 'guest';
-    const cartKey = `cart_${currentUser}`;
+    const currentUser = this.authService.currentUser()?.email || 'guest';// Get the currently logged in user's email, or fall back to 'guest'
+    const cartKey = `cart_${currentUser}`;// Build a unique localStorage key per user so each user has their own cart
     try {
-      localStorage.setItem(cartKey, JSON.stringify(this.cartItems()));
+      localStorage.setItem(cartKey, JSON.stringify(this.cartItems()));//convert the cartItems array into a JSON string before saving
     } catch (error) {
       console.error('[CartService] Failed to save cart to localStorage:', error);
     }
@@ -268,13 +264,14 @@ export class CartService {
    * Load cart from localStorage
    */
   private loadCartFromLocalStorage(): void {
-    const currentUser = this.authService.currentUser()?.email || 'guest';
-    const cartKey = `cart_${currentUser}`;
+    const currentUser = this.authService.currentUser()?.email || 'guest'; // Get the currently logged in user's email, or fall back to 'guest'
+    const cartKey = `cart_${currentUser}`;// Build a unique localStorage key per user so each user has their own cart
     try {
-      const stored = localStorage.getItem(cartKey);
+      const stored = localStorage.getItem(cartKey);// Attempt to retrieve the stored cart string from the browser's localStorage
       if (stored) {
+        // localStorage only stores strings, so we parse the JSON string
+        // back into a JavaScript array/object before setting it
         this.cartItems.set(JSON.parse(stored));
-        console.log('[CartService] Cart loaded from localStorage');
       }
     } catch (error) {
       console.error('[CartService] Failed to load cart from localStorage:', error);

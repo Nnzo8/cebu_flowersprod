@@ -21,11 +21,14 @@ export interface Product {
 })
 export class ProductService {
   
-    private readonly supabaseUrl = `${environment.supabase.url}/rest/v1/products`;
+  // The Supabase REST API endpoint for the products table
+  // Built from environment variables so it works across dev/prod environments
+  private readonly supabaseUrl = `${environment.supabase.url}/rest/v1/products`;
 
   // Cache for all products (used for client-side filtering by ID)
   private cachedProducts: Product[] = [];
 
+  // HttpClient is injected to make HTTP requests to the Supabase REST API
   constructor(private http: HttpClient) {}
 
   /**
@@ -39,6 +42,7 @@ export class ProductService {
     return this.http.get<Product[]>(`${this.supabaseUrl}?select=*`).pipe(
       this.applyRetryLogic('Fetch all products'),
       map(products => {
+        // Store the fetched products in cache
         this.cachedProducts = products;
         return products;
       })
@@ -57,7 +61,7 @@ export class ProductService {
       return throwError(() => new Error('Invalid product ID provided'));
     }
 
-    // If we have cached products, filter and return immediately
+    // If we have cached products, filter locally and return immediately
     if (this.cachedProducts.length > 0) {
       const product = this.cachedProducts.find(p => p.id === id);
       if (product) {
@@ -67,7 +71,7 @@ export class ProductService {
       return throwError(() => new Error(`Product with ID "${id}" not found`));
     }
 
-    // If cache is empty, fetch all products first, then filter
+    // If cache is empty, fetch all products first, then filter for the one we need
     return this.getProducts().pipe(
       map(products => {
         const product = products.find(p => p.id === id);
@@ -115,7 +119,7 @@ export class ProductService {
     // 2. Use PATCH instead of PUT. 
     // 3. Use ?id=eq.${id} to target the specific row
     return this.http.patch<Product[]>(
-      `${this.supabaseUrl}?id=eq.${id}`, 
+      `${this.supabaseUrl}?id=eq.${id}`, // ?id=eq.${id} is Supabase's filter syntax
       product,
       { headers }
     ).pipe(
