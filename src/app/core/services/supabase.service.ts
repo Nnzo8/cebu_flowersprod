@@ -610,7 +610,7 @@ export class SupabaseService {
         .select('*')
         .eq('user_email', userEmail)
         .eq('product_id', productId)
-        .single();
+        .maybeSingle();
 
       if (selectError && selectError.code !== 'PGRST116') {
         // PGRST116 = no rows returned (not found)
@@ -706,7 +706,7 @@ export class SupabaseService {
         .eq('user_email', userEmail)
         .eq('product_id', productId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('[SupabaseService] Error updating cart item quantity:', error);
