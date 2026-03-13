@@ -27,15 +27,28 @@ describe('Cart', () => {
     it('should ensure subtotals and totals update when quantity changes', async () => {
         const fixture = TestBed.createComponent(Cart);
         const c = fixture.componentInstance as any;
+        
+        // Mock some initial items in the service
+        const mockItem = { 
+            id: '1', 
+            productId: 'p1', 
+            name: 'Rose', 
+            price: 100, 
+            quantity: 1, 
+            imageUrl: '' 
+        };
+        c.cartService.cartItems.set([mockItem]);
+        
         fixture.detectChanges();
         await fixture.whenStable();
 
-        const item = c.cartItems()[0];
-        item.quantity = 2;
+        // Use the component's method which triggers the signal update
+        c.updateQuantity('1', 2);
+        
         fixture.detectChanges();
         await fixture.whenStable();
 
-        expect(c.subtotal()).toBe(item.price * 2);
-        expect(c.total()).toBe(item.price * 2);
+        expect(c.subtotal()).toBe(200);
+        expect(c.total()).toBe(200);
     });
 });
